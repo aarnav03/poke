@@ -73,12 +73,14 @@ public:
 };
 
 void battle(PokeBase &p1, PokeBase &p2) {
-  int t = 1;
   while (p1.alive() && p2.alive()) {
 
-    cout << p1.name << "hp " << p1.hp << endl;
-    cout << p2.name << "hp" << p2.hp << endl;
-    cout << "Choose attack: " << endl;
+    cout << ">" << endl;
+    cout << p1.name << " HP: " << p1.hp << endl;
+    cout << p2.name << " HP: " << p2.hp << endl;
+
+    cout << ">" << endl;
+    cout << p1.name << " Choose attack: " << endl;
     p1.atkshow();
     cout << endl;
     int m, dmg;
@@ -87,12 +89,13 @@ void battle(PokeBase &p1, PokeBase &p2) {
       dmg = p1.atk1();
     else
       dmg = p1.atk2();
-    cout << p1.name << " attacks for " << dmg << endl;
+    cout << p1.name << " dealt " << dmg << endl;
+    cout << "> \n";
     p2.damage(dmg);
     if (!p2.alive())
       break;
     // p2 stuff
-    cout << "P2 choose \n";
+    cout << p2.name << " choose: \n";
     p2.atkshow();
     cin >> m;
     if (m == 1)
@@ -100,7 +103,7 @@ void battle(PokeBase &p1, PokeBase &p2) {
     else
       dmg = p2.atk2();
 
-    cout << "p2 attacks for " << dmg << endl;
+    cout << p2.name << " attacks for " << dmg << endl;
     p1.damage(dmg);
   }
 
