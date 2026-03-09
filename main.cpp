@@ -61,9 +61,9 @@ public:
     cout << "2. Vine Whip \n";
   }
 };
-class sqrt : public PokeBase {
+class sqrtl : public PokeBase {
 public:
-  sqrt() : PokeBase(water, "Squirtle", 44, 48) {}
+  sqrtl() : PokeBase(water, "Squirtle", 44, 48) {}
   int atk1() { return atk * 0.8; }
   int atk2() { return atk * 1.1; }
   void atkshow() {
@@ -74,7 +74,6 @@ public:
 
 void battle(PokeBase &p1, PokeBase &p2) {
   while (p1.alive() && p2.alive()) {
-
     cout << ">" << endl;
     cout << p1.name << " HP: " << p1.hp << endl;
     cout << p2.name << " HP: " << p2.hp << endl;
@@ -104,6 +103,7 @@ void battle(PokeBase &p1, PokeBase &p2) {
       dmg = p2.atk2();
 
     cout << p2.name << " attacks for " << dmg << endl;
+    cout << p2.name << " attacks for " << dmg << endl;
     p1.damage(dmg);
   }
 
@@ -115,6 +115,6 @@ void battle(PokeBase &p1, PokeBase &p2) {
 
 int main() {
   pika p1;
-  sqrt p2;
+  bulba p2;
   battle(p1, p2);
 }
