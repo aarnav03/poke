@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pokémon Battle</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--bg: #0c0c0c;
+			--fg: #cccccc;
+			--bright: #f2f2f2;
+			--dim: #767676;
+			--line: #3a3a3a;
+			--fire: #ff5f56;
+			--water: #5aa0ff;
+			--electric: #ffd24a;
+			--plant: #4ec96a;
+			--hp-good: #4ec96a;
+			--hp-mid: #ffd24a;
+			--hp-low: #ff5f56;
+			--display: "Press Start 2P", "Courier New", monospace;
+			--body: "VT323", "Courier New", monospace;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			margin: 0;
+			min-height: 100%;
+		}
+
+		body {
+			background-color: var(--bg);
+			color: var(--fg);
+			font-family: var(--body);
+			font-size: 24px;
+			line-height: 1.2;
+			padding: 24px 16px 48px;
+		}
+
+		main {
+			max-width: 820px;
+			margin: 0 auto;
+		}
+
+		h1 {
+			font-family: var(--display);
+			font-size: clamp(14px, 3.6vw, 22px);
+			line-height: 1.5;
+			font-weight: 400;
+			margin: 8px 0 28px;
+			color: var(--bright);
+		}
+
+		h1::before {
+			content: " ";
+			color: var(--dim);
+		}
+
+		h1::after {
+			content: "_";
+			animation: blink 1s steps(1) infinite;
+		}
+
+		@keyframes blink {
+			50% {
+				opacity: 0;
+			}
+		}
+
+		h2 {
+			font-family: var(--display);
+			font-size: 12px;
+			line-height: 1.7;
+			margin: 0 0 16px;
+			font-weight: 400;
+		}
+
+		.screen[hidden] {
+			display: none;
+		}
+
+		.panel {
+			border: 2px solid var(--line);
+			padding: 18px;
+		}
+
+		button {
+			font: inherit;
+			color: inherit;
+			cursor: pointer;
+		}
+
+		button:focus-visible,
+		input:focus-visible {
+			outline: 2px dashed var(--fg);
+			outline-offset: 3px;
+		}
+
+		.btn {
+			background: transparent;
+			color: var(--fg);
+			border: 2px solid var(--fg);
+			padding: 6px 14px;
+			text-align: left;
+			font-size: 24px;
+		}
+
+		.btn::before {
+			content: "> ";
+			color: var(--dim);
+		}
+
+		.btn:hover:not(:disabled) {
+			background: var(--fg);
+			color: var(--bg);
+		}
+
+		.btn:hover:not(:disabled)::before {
+			color: var(--bg);
+		}
+
+		.btn:disabled {
+			opacity: 0.35;
+			cursor: not-allowed;
+		}
+
+		.modes {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 12px;
+			margin-bottom: 20px;
+		}
+
+		.mode {
+			background: transparent;
+			border: 2px solid var(--line);
+			padding: 12px 14px;
+			text-align: left;
+			font-size: 24px;
+		}
+
+		.mode strong {
+			display: block;
+			font-family: var(--display);
+			font-size: 10px;
+			line-height: 1.7;
+			margin-bottom: 6px;
+			font-weight: 400;
+		}
+
+		.mode[aria-pressed="true"] {
+			border-color: var(--bright);
+			background: rgba(255, 255, 255, 0.07);
+		}
+
+		.mode[aria-pressed="true"] strong::before {
+			content: "[x] ";
+		}
+
+		.mode[aria-pressed="false"] strong::before {
+			content: "[ ] ";
+			color: var(--dim);
+		}
+
+		.field {
+			display: block;
+			margin-bottom: 14px;
+		}
+
+		.field span {
+			display: block;
+			margin-bottom: 4px;
+			color: var(--dim);
+		}
+
+		.field input {
+			width: 100%;
+			font: inherit;
+			padding: 6px 10px;
+			border: 2px solid var(--line);
+			background: transparent;
+			color: var(--fg);
+			caret-color: var(--fg);
+		}
+
+		.field input::placeholder {
+			color: var(--line);
+		}
+
+		/* ---------- pick ---------- */
+		.roster {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+			gap: 12px;
+		}
+
+		.pick {
+			background: transparent;
+			border: 2px solid var(--line);
+			padding: 12px;
+			text-align: center;
+			font-size: 24px;
+		}
+
+		.pick:hover {
+			border-color: var(--bright);
+			background: rgba(255, 255, 255, 0.06);
+		}
+
+		.pick .nm {
+			font-family: var(--display);
+			font-size: 10px;
+			display: block;
+			margin: 8px 0;
+		}
+
+		.icon {
+			display: block;
+			font-size: 44px;
+			line-height: 1.3;
+		}
+
+		.icon.fire,
+		.tag.fire {
+			color: var(--fire);
+		}
+
+		.icon.water,
+		.tag.water {
+			color: var(--water);
+		}
+
+		.icon.electric,
+		.tag.electric {
+			color: var(--electric);
+		}
+
+		.icon.plant,
+		.tag.plant {
+			color: var(--plant);
+		}
+
+		.tag {
+			display: inline-block;
+			padding: 0 6px;
+			border: 2px solid currentColor;
+			font-size: 20px;
+		}
+
+		/* ---------- battle ---------- */
+		.arena {
+			position: relative;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+		}
+
+		.fighter {
+			border: 2px solid var(--line);
+			padding: 14px;
+			text-align: center;
+			transition: transform 0.15s;
+		}
+
+		.fighter.active {
+			border-color: var(--bright);
+		}
+
+		.fighter .trainer {
+			color: var(--dim);
+		}
+
+		.fighter .icon {
+			font-size: 56px;
+		}
+
+		.fighter .nm {
+			font-family: var(--display);
+			font-size: 11px;
+			margin: 4px 0 8px;
+			display: block;
+		}
+
+		.hp {
+			margin-top: 12px;
+			text-align: left;
+		}
+
+		.hp-track {
+			height: 14px;
+			border: 2px solid var(--line);
+		}
+
+		.hp-fill {
+			height: 100%;
+			width: 100%;
+			background: var(--hp-good);
+		}
+
+		.hp-text {
+			display: block;
+			text-align: right;
+			margin-top: 2px;
+		}
+
+		.fighter.lunge-0 {
+			animation: lunge-r 0.35s ease-out;
+		}
+
+		.fighter.lunge-1 {
+			animation: lunge-l 0.35s ease-out;
+		}
+
+		.fighter.hit {
+			animation: shake 0.45s;
+		}
+
+		.fighter.fainted {
+			opacity: 0.4;
+			transform: translateY(6px);
+		}
+
+		@keyframes lunge-r {
+			50% {
+				transform: translateX(24px);
+			}
+		}
+
+		@keyframes lunge-l {
+			50% {
+				transform: translateX(-24px);
+			}
+		}
+
+		@keyframes shake {
+
+			0%,
+			100% {
+				transform: translateX(0);
+			}
+
+			20% {
+				transform: translateX(-8px);
+			}
+
+			40% {
+				transform: translateX(8px);
+			}
+
+			60% {
+				transform: translateX(-5px);
+			}
+
+			80% {
+				transform: translateX(5px);
+			}
+		}
+
+		.bolt {
+			position: fixed;
+			left: 0;
+			top: 0;
+			width: 48px;
+			height: 12px;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		.bolt.fire {
+			background: var(--fire);
+		}
+
+		.bolt.water {
+			background: var(--water);
+		}
+
+		.bolt.electric {
+			background: var(--electric);
+		}
+
+		.bolt.plant {
+			background: var(--plant);
+		}
+
+		.console {
+			margin-top: 24px;
+			display: grid;
+			grid-template-columns: 1.4fr 1fr;
+			gap: 20px;
+		}
+
+		.log {
+			min-height: 150px;
+			max-height: 220px;
+			overflow-y: auto;
+		}
+
+		.log p {
+			margin: 0 0 4px;
+		}
+
+		.log p::before {
+			content: "> ";
+			color: var(--dim);
+		}
+
+		.log p.super {
+			color: var(--electric);
+		}
+
+		.log p.weak {
+			color: var(--dim);
+		}
+
+		.log p.faint {
+			color: var(--fire);
+		}
+
+		.turn {
+			font-family: var(--display);
+			font-size: 10px;
+			line-height: 1.7;
+			margin: 0 0 12px;
+		}
+
+		.moves {
+			display: grid;
+			gap: 10px;
+		}
+
+		.result {
+			text-align: center;
+		}
+
+		.result .big {
+			font-family: var(--display);
+			font-size: clamp(14px, 3.4vw, 20px);
+			line-height: 1.6;
+			margin: 12px 0;
+		}
+
+		.result .icon {
+			font-size: 64px;
+		}
+
+		.result .btn {
+			text-align: center;
+		}
+
+		@media (max-width: 620px) {
+			.fighter .icon {
+				font-size: 40px;
+			}
+
+			.console {
+				grid-template-columns: 1fr;
+			}
+
+			.modes {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			.fighter,
+			.fighter.lunge-0,
+			.fighter.lunge-1,
+			.fighter.hit {
+				animation: none;
+			}
+
+			h1::after {
+				animation: none;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<main>
+		<h1>POKÉMON BATTLE</h1>
+
+		<section id="setup" class="screen panel">
+			<h2>Choose a mode</h2>
+			<div class="modes">
+				<button class="mode" id="mode-cpu" aria-pressed="true"><strong>Player vs Computer</strong>Take on a random
+					opponent.</button>
+				<button class="mode" id="mode-pvp" aria-pressed="false"><strong>Player vs Player</strong>Two trainers, one
+					screen.</button>
+			</div>
+			<label class="field"><span>Player 1 name</span><input id="name1" maxlength="14" placeholder="Player 1"
+					autocomplete="off"></label>
+			<label class="field" id="name2-wrap" hidden><span>Player 2 name</span><input id="name2" maxlength="14"
+					placeholder="Player 2" autocomplete="off"></label>
+			<button class="btn" id="to-pick">Choose Pokémon</button>
+		</section>
+
+		<section id="pick" class="screen panel" hidden>
+			<h2 id="pick-title"></h2>
+			<div class="roster" id="roster"></div>
+		</section>
+
+		<section id="battle" class="screen" hidden>
+			<div class="arena" id="arena"></div>
+			<div class="console">
+				<div class="panel log" id="log" aria-live="polite"></div>
+				<div class="panel">
+					<p class="turn" id="turn"></p>
+					<div class="moves" id="moves"></div>
+				</div>
+			</div>
+		</section>
+
+		<section id="result" class="screen panel result" hidden>
+			<span class="icon" id="result-icon"></span>
+			<p class="big" id="result-title"></p>
+			<p id="result-sub"></p>
+			<button class="btn" id="again">Battle again</button>
+		</section>
+	</main>
+
+	<script>
+		const $ = (s) => document.querySelector(s);
+		const ICON = {fire: "▲", water: "●", electric: "■", plant: "◆"};
+		const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+		const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+		let roster = [], vsCpu = true, names = [], picks = [], gameId = null, state = null, busy = false;
+		const hpShown = [0, 0]; // what the HP bars currently display
+
+		function show(id) {
+			document.querySelectorAll(".screen").forEach((s) => (s.hidden = s.id !== id));
+		}
+
+		async function api(path, body) {
+			const res = await fetch(path, {
+				method: body ? "POST" : "GET",
+				headers: {"Content-Type": "application/json"},
+				body: body ? JSON.stringify(body) : undefined,
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "Something went wrong.");
+			return data;
+		}
+
+		function setMode(cpu) {
+			vsCpu = cpu;
+			$("#mode-cpu").setAttribute("aria-pressed", cpu);
+			$("#mode-pvp").setAttribute("aria-pressed", !cpu);
+			$("#name2-wrap").hidden = cpu;
+		}
+		$("#mode-cpu").onclick = () => setMode(true);
+		$("#mode-pvp").onclick = () => setMode(false);
+
+		$("#to-pick").onclick = () => {
+			names = [$("#name1").value.trim() || "Player 1", vsCpu ? "Computer" : $("#name2").value.trim() || "Player 2"];
+			picks = [];
+			renderPick();
+			show("pick");
+		};
+
+		function renderPick() {
+			const who = names[picks.length];
+			$("#pick-title").textContent = `${who}, choose your Pokémon`;
+			const box = $("#roster");
+			box.replaceChildren();
+			roster.forEach((p, i) => {
+				const b = document.createElement("button");
+				b.className = "pick";
+				b.innerHTML = '<span class="icon"></span><span class="nm"></span><span class="tag"></span><br>HP <span class="hp-n"></span>';
+				b.querySelector(".icon").textContent = ICON[p.type];
+				b.querySelector(".icon").classList.add(p.type);
+				b.querySelector(".nm").textContent = p.name;
+				b.querySelector(".tag").textContent = p.type[0].toUpperCase() + p.type.slice(1);
+				b.querySelector(".tag").classList.add(p.type);
+				b.querySelector(".hp-n").textContent = p.hp;
+				b.onclick = () => choose(i);
+				box.append(b);
+			});
+		}
+
+		async function choose(i) {
+			picks.push(i);
+			if (picks.length < (vsCpu ? 1 : 2)) {
+				renderPick();
+				return;
+			}
+			try {
+				const data = await api("/api/start", {mode: vsCpu ? "cpu" : "pvp", names, picks});
+				gameId = data.game_id;
+				state = data.state;
+				startBattle();
+			} catch (e) {
+				alert(e.message);
+				show("setup");
+			}
+		}
+
+		function startBattle() {
+			$("#log").replaceChildren();
+			const arena = $("#arena");
+			arena.replaceChildren();
+			state.players.forEach((pl, i) => {
+				const m = pl.pokemon;
+				const card = document.createElement("div");
+				card.className = "fighter";
+				card.id = `fighter-${i}`;
+				card.innerHTML =
+					'<span class="trainer"></span><span class="icon"></span><span class="nm"></span><span class="tag"></span>' +
+					'<div class="hp"><div class="hp-track"><div class="hp-fill"></div></div><span class="hp-text"></span></div>';
+				card.querySelector(".trainer").textContent = pl.name;
+				card.querySelector(".icon").textContent = ICON[m.type];
+				card.querySelector(".icon").classList.add(m.type);
+				card.querySelector(".nm").textContent = m.name;
+				card.querySelector(".tag").textContent = m.type[0].toUpperCase() + m.type.slice(1);
+				card.querySelector(".tag").classList.add(m.type);
+				arena.append(card);
+				setHp(i, m.hp);
+			});
+			log(`${state.players[0].name}: ${state.players[0].pokemon.name}`);
+			log(`${state.players[1].name}: ${state.players[1].pokemon.name}`);
+			renderTurn();
+			show("battle");
+		}
+
+		function setHp(i, hp) {
+			hpShown[i] = hp;
+			const m = state.players[i].pokemon;
+			const pct = (hp / m.max_hp) * 100;
+			const card = $(`#fighter-${i}`);
+			const fill = card.querySelector(".hp-fill");
+			fill.style.width = pct + "%";
+			fill.style.background = pct > 50 ? "var(--hp-good)" : pct > 20 ? "var(--hp-mid)" : "var(--hp-low)";
+			card.querySelector(".hp-text").textContent = `${hp}/${m.max_hp}`;
+		}
+
+		async function drainHp(i, from, to) {
+			if (reduceMotion) return setHp(i, to);
+			for (let hp = from - 1; hp >= to; hp--) {
+				setHp(i, hp);
+				await sleep(35);
+			}
+		}
+
+		function log(text, cls = "") {
+			const p = document.createElement("p");
+			p.textContent = text;
+			if (cls) p.className = cls;
+			$("#log").append(p);
+			$("#log").scrollTop = $("#log").scrollHeight;
+		}
+
+		function renderTurn() {
+			document.querySelectorAll(".fighter").forEach((f, i) => f.classList.toggle("active", i === state.turn && state.winner === null));
+			const box = $("#moves");
+			box.replaceChildren();
+			if (state.winner !== null) {
+				$("#turn").textContent = "Battle over";
+				return;
+			}
+			const pl = state.players[state.turn];
+			$("#turn").textContent = `${pl.name}'s turn`;
+			pl.pokemon.moves.forEach((mv, idx) => {
+				const b = document.createElement("button");
+				b.className = "btn";
+				b.textContent = mv;
+				b.disabled = busy;
+				b.onclick = () => doMove(idx);
+				box.append(b);
+			});
+		}
+
+		function setBusy(v) {
+			busy = v;
+			document.querySelectorAll("#moves .btn").forEach((b) => (b.disabled = v));
+		}
+
+		async function flyBolt(type, fromIdx, toIdx) {
+			if (reduceMotion) return;
+			const a = $(`#fighter-${fromIdx}`).getBoundingClientRect();
+			const d = $(`#fighter-${toIdx}`).getBoundingClientRect();
+			const bolt = document.createElement("div");
+			bolt.className = `bolt ${type}`;
+			document.body.append(bolt);
+			const pos = (r) => `translate(${r.left + r.width / 2 - 28}px, ${r.top + r.height / 2 - 10}px)`;
+			const anim = bolt.animate([{transform: pos(a)}, {transform: pos(d)}], {duration: 450, easing: "ease-in"});
+			await anim.finished;
+			bolt.remove();
+		}
+
+		async function playEvent(ev) {
+			log(`${ev.trainer}'s turn`);
+			const atk = $(`#fighter-${ev.attacker}`);
+			const defIdx = 1 - ev.attacker;
+			const def = $(`#fighter-${defIdx}`);
+
+			atk.classList.add(`lunge-${ev.attacker}`);
+			await flyBolt(ev.type, ev.attacker, defIdx);
+			atk.classList.remove(`lunge-${ev.attacker}`);
+
+			def.classList.add("hit");
+			log(`${ev.pokemon} used ${ev.move} for ${ev.damage} damage!`);
+			if (ev.note) log(ev.note, ev.note.includes("super") ? "super" : "weak");
+			await drainHp(defIdx, ev.old_hp, ev.new_hp);
+			await sleep(reduceMotion ? 0 : 450);
+			def.classList.remove("hit");
+
+			if (ev.fainted) {
+				def.classList.add("fainted");
+				log(`${ev.foe} fainted!`, "faint");
+				await sleep(900);
+			}
+		}
+
+		async function doMove(idx) {
+			if (busy) return;
+			setBusy(true);
+			try {
+				const data = await api("/api/move", {game_id: gameId, move: idx});
+				for (const ev of data.events) {
+					// give the CPU a beat to "think"
+					if (state.players[ev.attacker].is_cpu && !reduceMotion) await sleep(600);
+					await playEvent(ev);
+				}
+				state = data.state;
+				busy = false;
+				if (state.winner !== null) return showResult();
+				renderTurn();
+			} catch (e) {
+				busy = false;
+				log(e.message);
+				renderTurn();
+			}
+		}
+
+		function showResult() {
+			const w = state.players[state.winner];
+			$("#result-icon").textContent = ICON[w.pokemon.type];
+			$("#result-icon").className = "icon " + w.pokemon.type;
+			$("#result-title").textContent = `${w.name} wins!`;
+			$("#result-sub").textContent = `${w.pokemon.name} remains standing.`;
+			show("result");
+		}
+		$("#again").onclick = () => show("setup");
+
+		api("/api/roster").then((r) => (roster = r));
+	</script>
+</body>
+
+</html>
