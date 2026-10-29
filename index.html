@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<title>Pixel Paint</title>
+	<meta name="claude:viewport-fit-sides" content="cover">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Jersey+10&family=JetBrains+Mono:wght@400;600&display=swap">
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<div class="wrap">
+		<h1>PIXEL PAINT<span class="cursor">_</span></h1>
+
+		<div class="top">
+			<section class="box">
+				<canvas id="board" width="512" height="512" aria-label="Drawing canvas, 128 by 128 cells"></canvas>
+				<p class="hint">128 × 128 grid. Try Bucket fill inside the boxes.</p>
+			</section>
+
+			<div class="side">
+				<section class="box">
+					<h2>Tool</h2>
+					<div class="list">
+						<button class="tool on" id="pen" data-tool="pen">Pen</button>
+						<button class="tool" id="eraser" data-tool="eraser">Eraser</button>
+						<button class="tool" id="fill" data-tool="fill">Bucket fill</button>
+					</div>
+				</section>
+				<section class="box">
+					<h2>Colour</h2>
+					<div class="swatches" id="swatches"></div>
+				</section>
+				<section class="box">
+					<h2>History</h2>
+					<div class="list">
+						<button class="act" id="undo">Undo</button>
+						<button class="act" id="redo">Redo</button>
+						<button class="act" id="clear">Clear</button>
+					</div>
+				</section>
+			</div>
+		</div>
+
+		<!-- 	<div class="bottom"> -->
+		<!-- 		<section class="box"> -->
+		<!-- 			<h2>Log</h2> -->
+		<!-- 			<ul id="log"></ul> -->
+		<!-- 		</section> -->
+		<!-- 		<section class="box"> -->
+		<!-- 			<h2>Stacks</h2> -->
+		<!-- 			<div class="stat"><span>Undo stack</span><b id="undo-n">0</b></div> -->
+		<!-- 			<div class="bar" id="undo-bar"></div> -->
+		<!-- 			<div class="stat"><span>Redo stack</span><b id="redo-n">0</b></div> -->
+		<!-- 			<div class="bar" id="redo-bar"></div> -->
+		<!-- 			<div class="stat"><span>Last fill</span><b id="fill-n">-</b></div> -->
+		<!-- 			<div class="stat"><span>Max DFS stack</span><b id="stack-n">-</b></div> -->
+		<!-- 		</section> -->
+		<!-- 	</div> -->
+		<!-- </div> -->
+
+		<script src="script.js"></script>
+</body>
+
+</html>
